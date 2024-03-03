@@ -1,35 +1,40 @@
-const items = [
-  {
-    name: "good mood",
-    packed: true,
-  },
-  {
-    name: "socks",
-    packed: false,
-  },
-  {
-    name: "toothbrush",
-    packed: true,
-  },
-];
-
-export default function ItemList() {
+export default function ItemList({ items, onRemoveItem, handleToggleItem }) {
   return (
     <ul>
-      {items.map((item, index) => {
-        return <ListItem key={index} item={item} />;
+      {items.map((item) => {
+        return (
+          <ListItem
+            key={item.id}
+            item={item}
+            onRemoveItem={onRemoveItem}
+            handleToggleItem={handleToggleItem}
+          />
+        );
       })}
     </ul>
   );
 }
 
-function ListItem({ item }) {
+function ListItem({ item, onRemoveItem, handleToggleItem }) {
   return (
     <li className="item">
       <label>
-        <input type="checkbox" />
+        <input
+          onChange={() => {
+            handleToggleItem(item.id);
+          }}
+          checked={item.packed}
+          type="checkbox"
+        />
         {item.name}
       </label>
+      <button
+        onClick={() => {
+          onRemoveItem(item.id);
+        }}
+      >
+        ❌
+      </button>
     </li>
   );
 }
