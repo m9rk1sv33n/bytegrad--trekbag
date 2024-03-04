@@ -1,13 +1,57 @@
-export default function ItemList({ items, onRemoveItem, handleToggleItem }) {
+import Select from "react-select";
+import EmptyState from "./EmptyState";
+import { useMemo, useState } from "react";
+import { useItemsStore } from "../stores/itemsStore";
+
+const sortingOptions = [
+  { label: "Sort by default", value: "default" },
+  { label: "Sort by packed", value: "packed" },
+  { label: "Sort by unpacked", value: "unpacked" },
+];
+
+export default function ItemList() {
+  const items = useItemsStore((state) => state.items);
+  const removeItem = useItemsStore((state) => state.removeItem);
+  const toggleItem = useItemsStore((state) => state.toggleItem);
+  const [sortBy, setSortBy] = useState("default");
+
+  const sortedItems = useMemo(
+    () =>
+      [...items].sort((a, b) => {
+        if (sortBy === "default") {
+          return 0;
+        }
+        if (sortBy === "unpacked") {
+          return a.packed === b.packed ? 0 : a.packed ? 1 : -1;
+        }
+        if (sortBy === "packed") {
+          return a.packed === b.packed ? 0 : a.packed ? -1 : 1;
+        }
+      }),
+    [items, sortBy]
+  );
+
   return (
-    <ul>
-      {items.map((item) => {
+    <ul className="item-list">
+      {items.length === 0 ? <EmptyState /> : null}
+
+      {items.length > 0 ? (
+        <section className="sorting">
+          <Select
+            onChange={(option) => setSortBy(option.value)}
+            defaultValue={sortingOptions[0]}
+            options={sortingOptions}
+          />
+        </section>
+      ) : null}
+
+      {sortedItems.map((item) => {
         return (
           <ListItem
             key={item.id}
             item={item}
-            onRemoveItem={onRemoveItem}
-            handleToggleItem={handleToggleItem}
+            onRemoveItem={removeItem}
+            handleToggleItem={toggleItem}
           />
         );
       })}
